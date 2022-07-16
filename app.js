@@ -152,6 +152,8 @@ app.post("/register", async (req,res)=>{
         }
     )
     
+    // HERE WE HAVE TO USE THE MIDDLEWARE TO GENERATE THE TOKEN 
+    const token = await newUser.generateAuthToken() 
     const response = await newUser.save()
     console.log(response);
     

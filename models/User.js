@@ -2,6 +2,7 @@
 // AND ALSO I WILL BE CONNECTING THE DATABASE TO THE BACKEND 
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
+const jwt = require("jsonwebtoken");
 
 mongoose.connect("mongodb://localhost:27017/solveitDB", {
     useNewUrlParser : true,
@@ -41,6 +42,24 @@ const userSchema = mongoose.Schema(
         // }
     }
 );
+
+
+// DEFINING THE MIDDLEWARE HERE FOR GENERATING THE AUTH TOKEN 
+userSchema.methods.generateAuthToken = async function(){
+    // ADDING THE TRY AND CATCH FOR ERROR HANDLING 
+    try{
+        // GENERATING THE TOKEN FOR THIS PURPOSE 
+        const token = jwt.sign({_id : this._id.toString()}, "thisisecrettokenmynameisrupeshkumarandhenceproved");
+
+        console.log(token);
+        return token
+    }
+    catch(error){
+        // res.send("the error part " + error);
+        console.log(error);
+    }
+    // next()
+}
 
 
 
