@@ -9,7 +9,7 @@ const cookieParser = require("cookie-parser");
 const bcrypt = require("bcrypt");
 const userModel = require('./models/User');
 const auth = require("./middlewares/auth");
-
+const jwt = require("jsonwebtoken");
 
 console.log("hi this is node js backend server code for building the backend using nodejs for solveit-app")
 
@@ -38,19 +38,45 @@ app.use(cookieParser());
 
 
 
-app.get("/", auth,(req, res)=>{
+app.get("/", async (req, res)=>{
     console.log("The cookie that i get from the user is as follows \n");
-    const cookie = req.cookies.token;
+    const cookie = req.cookies;
     console.log(cookie);
-    res.status(200).json({status : 200, message : "ok"});
+    if(!cookie)
+    {
+        // THEN THE USER IS NOT SIGNED IN YET 
+        // SENDING THE BAD REQUEST TO THE FRONTEND 
+        res.json({status : 401, message : "not ok"});
+    }
+    const token = cookie.token;
+    if(!token)
+    {
+        res.json({status : 401, message : "not ok"});
+
+    }
+    let curr_user = jwt.verify(token, process.env.SECRET_KEY);
+    console.log("The current user is as follows");
+    curr_user = await userModel.findOne({_id : curr_user._id});
+    console.log(curr_user);
+    res.status(200).json({status : 200, message : "ok", curr_user});
+
+
     // res.end();
     
 })
 
 // ADDING THE ROUTE TO HANDLE THE IDEA UPLOAD SECTION 
-app.get("/upload", auth, (req, res)=>{
+app.get("/upload", auth, async(req, res)=>{
     console.log("The user is trying to go to the upload section\n");
-    res.status(200).json({status: 200, message:"ok"});
+    console.log("The cookie that i get from the user is as follows \n");
+    const token = req.cookies.token;
+    console.log(token);
+    let curr_user = jwt.verify(token, process.env.SECRET_KEY);
+    console.log("The current user is as follows");
+    curr_user = await userModel.findOne({_id : curr_user._id});
+    console.log(curr_user);
+    res.status(200).json({status : 200, message : "ok", curr_user});
+    // res.status(200).json({status: 200, message:"ok"});
 })
 
 // HANDLING THE REGISTER ROUTE FOR THIS PURPOSE 
@@ -90,7 +116,7 @@ app.post("/signin", async (req, res) =>{
     // console.log(cookie);
     
     // res.json({status : 200, message : "ok"});
-    res.json({status : 200 , success : "ok", token : token});
+    res.json({status : 200 , success : "ok", curr_user:user});
 })
 
 // DEFINING THE ROUTE TO REGISTER THE NEW USER 
