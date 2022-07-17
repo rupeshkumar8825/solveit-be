@@ -40,27 +40,25 @@ app.use(cookieParser());
 
 app.get("/", async (req, res)=>{
     console.log("The cookie that i get from the user is as follows \n");
-    const cookie = req.cookies;
-    console.log(cookie);
-    if(!cookie)
-    {
-        // THEN THE USER IS NOT SIGNED IN YET 
-        // SENDING THE BAD REQUEST TO THE FRONTEND 
-        res.json({status : 401, message : "not ok"});
+    try{
+
+        // const cookie = req.cookies;
+        console.log(req.cookies)
+        const token = req.cookies.token;
+        console.log(token);
+        console.log("The current user is as follows");
+        let curr_user = jwt.verify(token, process.env.SECRET_KEY);
+        curr_user = await userModel.findOne({_id : curr_user._id});
+        // console.log(curr_user);
+        res.status(200).json({status : 200, message : "ok", curr_user});
+    }catch(error){
+        console.log("got some error in error section")
+        res.json({status : 401, message : "so not ok"});
+        res.end();
+        return;
     }
-    const token = cookie.token;
-    if(!token)
-    {
-        res.json({status : 401, message : "not ok"});
-
-    }
-    let curr_user = jwt.verify(token, process.env.SECRET_KEY);
-    console.log("The current user is as follows");
-    curr_user = await userModel.findOne({_id : curr_user._id});
-    console.log(curr_user);
-    res.status(200).json({status : 200, message : "ok", curr_user});
-
-
+    console.log("Came here as well");
+    
     // res.end();
     
 })
