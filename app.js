@@ -16,12 +16,6 @@ console.log("hi this is node js backend server code for building the backend usi
 const port = 8000;
 
 
-// const store = new MongoDBSession({
-//     uri : "mongodb://localhost:27017/solveitDB",
-//     collection : "solveitSessions",
-// });
-
-
 // ADDING THE MIDDLEWARE FOR THE CORS POLICY 
 // app.use(cors());
 app.use(cors({
@@ -29,12 +23,12 @@ app.use(cors({
     credentials: true
   }));
 
-// SETTING THE URL ENCODED AS FALSE AS WE NEED TO PARSE THE REQUEST COMING FROM THE FRONTEND TO CONVERT IT INTO JSON FORMAT 
-// app.use(express.urlencoded({extended:false}));
-// app.use(bodyParser.urlencoded({extended: false}));
+
+
 app.use(bodyParser.urlencoded({extended: true,}))
 app.use(bodyParser.json())
 app.use(cookieParser());
+
 
 
 
@@ -63,6 +57,9 @@ app.get("/", async (req, res)=>{
     
 })
 
+
+
+
 // ADDING THE ROUTE TO HANDLE THE IDEA UPLOAD SECTION 
 app.get("/upload", auth, async(req, res)=>{
     console.log("The user is trying to go to the upload section\n");
@@ -76,6 +73,9 @@ app.get("/upload", auth, async(req, res)=>{
     res.status(200).json({status : 200, message : "ok", curr_user});
     // res.status(200).json({status: 200, message:"ok"});
 })
+
+
+
 
 // HANDLING THE REGISTER ROUTE FOR THIS PURPOSE 
 app.post("/signin", async (req, res) =>{
@@ -98,24 +98,20 @@ app.post("/signin", async (req, res) =>{
         res.json({status : 401 , message : "not ok"})
     }
     
+
     const token = await user.generateAuthToken();
     console.log("The generated token after login is as follows\n");
     console.log(token);
 
-    // res.cookie("jwtToken", token, {
-    //     expires : new Date(Date.now() + 6000000),
-    //     httpOnly : true
-    // });
+    
 
     // res.cookie("token", token, { maxAge: 6000000, httpOnly : true, secure: true,  })
     res.cookie('token', token, {maxAge: 3*60*1000, sameSite: 'none', secure: true , httpOnly : true});
-    // console.log(cookie);
-    // console.log("The cookie after login of the user is as follows \n");
-    // console.log(cookie);
     
-    // res.json({status : 200, message : "ok"});
     res.json({status : 200 , success : "ok", curr_user:user});
 })
+
+
 
 // DEFINING THE ROUTE TO REGISTER THE NEW USER 
 app.post("/register", async (req,res)=>{
@@ -129,34 +125,24 @@ app.post("/register", async (req,res)=>{
     {
         res.send("User already exists\n");
     }
+
     const hashed_pswd = await bcrypt.hash(req.body.password, 12);
 
     // DEFINING THE NEW DOCUMENT TO BE STORED INTO THE DATABASE 
     const newUser = userModel(
         {
+            username :req.body.username,
             firstname : req.body.firstname, 
             lastname : req.body.lastname,
             email : req.body.email, 
+            phone : req.body.phone,
             password : hashed_pswd,
         }
     )
     
-    // HERE WE HAVE TO USE THE MIDDLEWARE TO GENERATE THE TOKEN 
-    // const token = await newUser.generateAuthToken() 
-    // console.log(token);
-
-    // GENERATING THE COOKIE WITH THE EXPIRY FIELD FOR BETTER SIGN IN AND SIGNOUT SYSTEM 
-    // res.cookie("jwt", token, {
-    //     expires : new Date(Date.now() + 600000),
-    //     httpOnly : true
-    // });
-
-
     const response = await newUser.save()
     console.log(response);
     
-    // NOW WE HAVE TO SET UP THE SESSION FOR THIS PARTICULAR USER FOR THIS PURPOSE 
-    // SAVING IN THE DATABASE 
     res.status(200).json({status : 200, message : "ok"});
 })
 
@@ -166,10 +152,7 @@ app.post("/register", async (req,res)=>{
 app.get("/logout", auth, async(req, res) =>{
     try {
         console.log("The user is trying to logout from the application\n");
-        // res.cookie('token', '', {maxAge : 1});
-        // res.clearCookie("token");
         res.cookie('token', "", {maxAge: 0, sameSite: 'none', secure: true , httpOnly : true});
-
         console.log("logout successfully\n");
 
         await req.user.save();

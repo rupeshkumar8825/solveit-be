@@ -15,6 +15,11 @@ mongoose.connect("mongodb://localhost:27017/solveitDB", {
 // NOWDEFINING THE SCHEMA FOR STORING THE DATA OF THE USERS OF SOLVE IT 
 const userSchema = mongoose.Schema(
     {
+        username : {
+            type : String, 
+            unique : true, 
+            required : true,
+        },
         firstname : {
             type : String,
             unique : true, 
@@ -28,6 +33,11 @@ const userSchema = mongoose.Schema(
         email :{
             type : String, 
             unique : true, 
+            required : true
+        },
+        phone :{
+            type : String, 
+            unique : true,
             required : true
         },
         password :{
