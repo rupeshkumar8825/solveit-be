@@ -108,7 +108,7 @@ app.post("/signin", async (req, res) =>{
     // });
 
     // res.cookie("token", token, { maxAge: 6000000, httpOnly : true, secure: true,  })
-    res.cookie('token', token, {maxAge: 3*60*1000, sameSite: 'none', secure: true });
+    res.cookie('token', token, {maxAge: 3*60*1000, sameSite: 'none', secure: true , httpOnly : true});
     // console.log(cookie);
     // console.log("The cookie after login of the user is as follows \n");
     // console.log(cookie);
@@ -160,6 +160,28 @@ app.post("/register", async (req,res)=>{
     res.status(200).json({status : 200, message : "ok"});
 })
 
+
+
+// DEFINING THE API TO HANDLE THE LOGOUT REQUEST TO THE USER 
+app.get("/logout", auth, async(req, res) =>{
+    try {
+        console.log("The user is trying to logout from the application\n");
+        // res.cookie('token', '', {maxAge : 1});
+        // res.clearCookie("token");
+        res.cookie('token', "", {maxAge: 0, sameSite: 'none', secure: true , httpOnly : true});
+
+        console.log("logout successfully\n");
+
+        await req.user.save();
+        res.status(200).json({status : 200, message : "ok"});
+        res.end();
+
+    } catch (error) {
+        res.status(401).json({status : 401, message : "ok"});
+        res.end();
+    }
+
+})
 
 // making a simple server here 
 app.listen(port, ()=>{
