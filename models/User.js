@@ -55,8 +55,11 @@ userSchema.methods.generateAuthToken = async function(){
     // ADDING THE TRY AND CATCH FOR ERROR HANDLING 
     try{
         // GENERATING THE TOKEN FOR THIS PURPOSE 
-        const token = jwt.sign({_id : this._id.toString()}, process.env.SECRET_KEY);
-        this.tokens = this.tokens.concat({token : token});
+        const token = jwt.sign({_id : this._id.toString()}, process.env.SECRET_KEY, {
+            expiresIn: 6000,
+
+        });
+        this.tokens = await this.tokens.concat({token : token});
         // SAVING THIS CHANGE TO THE DATABASE 
         await this.save();
         // console.log(token);

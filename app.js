@@ -6,19 +6,14 @@ const cors = require('cors');
 const app = express();
 const bodyParser = require('body-parser');
 const cookieParser = require("cookie-parser");
-const session = require('express-session');
-const morgan = require("morgan");
-const httpProxy = require('http-proxy');
-const proxy = httpProxy.createServer({});
 const bcrypt = require("bcrypt");
-// const User = require("./models/User");
 const userModel = require('./models/User');
 const auth = require("./middlewares/auth");
 
 
 console.log("hi this is node js backend server code for building the backend using nodejs for solveit-app")
 
-const port = 8080;
+const port = 8000;
 
 
 // const store = new MongoDBSession({
@@ -28,7 +23,11 @@ const port = 8080;
 
 
 // ADDING THE MIDDLEWARE FOR THE CORS POLICY 
-app.use(cors());
+// app.use(cors());
+app.use(cors({
+    origin: 'http://localhost:3000',
+    credentials: true
+  }));
 
 // SETTING THE URL ENCODED AS FALSE AS WE NEED TO PARSE THE REQUEST COMING FROM THE FRONTEND TO CONVERT IT INTO JSON FORMAT 
 // app.use(express.urlencoded({extended:false}));
@@ -41,11 +40,17 @@ app.use(cookieParser());
 
 app.get("/", auth,(req, res)=>{
     console.log("The cookie that i get from the user is as follows \n");
-    const cookie = req.cookies.jwt;
+    const cookie = req.cookies.token;
     console.log(cookie);
     res.status(200).json({status : 200, message : "ok"});
     // res.end();
     
+})
+
+// ADDING THE ROUTE TO HANDLE THE IDEA UPLOAD SECTION 
+app.get("/upload", auth, (req, res)=>{
+    console.log("The user is trying to go to the upload section\n");
+    res.status(200).json({status: 200, message:"ok"});
 })
 
 // HANDLING THE REGISTER ROUTE FOR THIS PURPOSE 
@@ -58,7 +63,7 @@ app.post("/signin", async (req, res) =>{
 
     if(!user)
     {
-        res.status(401).json({status : 401 , message : "not ok"})
+        res.json({status : 401 , message : "not ok"})
     }
     console.log("The current user is as follows \n", user);
 
@@ -66,22 +71,26 @@ app.post("/signin", async (req, res) =>{
     // GENERATING THE TOKEN WHILE LOGGING IN 
     if(!isMatch)
     {
-        res.status(401).json({status : 401 , message : "not ok"})
+        res.json({status : 401 , message : "not ok"})
     }
     
     const token = await user.generateAuthToken();
     console.log("The generated token after login is as follows\n");
     console.log(token);
 
-    const cookie = res.cookie("jwt", token, {
-        expires : new Date(Date.now() + 600000),
-        httpOnly : true
-    });
+    // res.cookie("jwtToken", token, {
+    //     expires : new Date(Date.now() + 6000000),
+    //     httpOnly : true
+    // });
 
-    console.log("The cookie after login of the user is as follows \n");
-    console.log(cookie);
+    // res.cookie("token", token, { maxAge: 6000000, httpOnly : true, secure: true,  })
+    res.cookie('token', token, {maxAge: 3*60*1000, sameSite: 'none', secure: true });
+    // console.log(cookie);
+    // console.log("The cookie after login of the user is as follows \n");
+    // console.log(cookie);
     
-    res.status(200).json({status : 200, message : "ok"});
+    // res.json({status : 200, message : "ok"});
+    res.json({status : 200 , success : "ok", token : token});
 })
 
 // DEFINING THE ROUTE TO REGISTER THE NEW USER 

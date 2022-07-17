@@ -7,12 +7,15 @@ const userModel  = require("../models/User");
 const auth = async (req, res, next)=>{
 
     try{
-        const token = req.cookies.jwt;
+        console.log(req.cookies);
+        const token = req.cookies.token;
+        console.log('The cookies from token in authorisation is as follows\n');
+        console.log(token);
         // if(!token)
         // {
         //     res.status(401).json({status : 401, message  :"not ok"});
         // }
-        // const verifyUser = jwt.verify(token, process.env.SECRET_KEY);
+        const verifyUser = jwt.verify(token, process.env.SECRET_KEY);
         // if(!verifyUser)
         // {
         //     res.status(401).json({status : 401, message  :"not ok"});
