@@ -7,10 +7,10 @@ const userModel  = require("../models/User");
 const auth = async (req, res, next)=>{
 
     try{
-        console.log(req.cookies);
+        // console.log(req.cookies);
         const token = req.cookies.token;
-        console.log('The cookies from token in authorisation is as follows\n');
-        console.log(token);
+        // console.log('The cookies from token in authorisation is as follows\n');
+        // console.log(token);
         // if(!token)
         // {
         //     res.status(401).json({status : 401, message  :"not ok"});
@@ -25,8 +25,8 @@ const auth = async (req, res, next)=>{
         // }
         req.token = token;
         req.user = user;
-        console.log("After auth the user trying to access the endpoint is as follows \n");
-        console.log(user);
+        // console.log("After auth the user trying to access the endpoint is as follows \n");
+        // console.log(user);
         // console.log("The user which is trying to access the page is as follows \n");
         // console.log(verifyUser)
         next();

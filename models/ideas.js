@@ -8,5 +8,25 @@ const ideaSchema = mongoose.Schema({
         type : String , 
         required : true,
     },
+    ideaname : {
+        type : String, 
+        requried : true
+    },
+    category : {
+        type : String, 
+        required : true,
+    },
+    othersknow : {
+        type : String, 
+        required : true,
+    },
+    rating : {
+        type : Number, 
+        required : true
+    },
+    description : {
+        type : String, 
+        required : true,
+    },
     
 })
