@@ -11,7 +11,7 @@ const userModel = require('./models/User');
 const auth = require("./middlewares/auth");
 const jwt = require("jsonwebtoken");
 const multer = require("multer");
-
+const ideaModel = require("./models/ideas");
 console.log("hi this is node js backend server code for building the backend using nodejs for solveit-app")
 
 const port = 8000;
@@ -174,19 +174,38 @@ const fileStorageEngine = multer.diskStorage({
         cb(null, "./uploads")
     },
     filename : (req, file, cb) => {
-        cb(null, Date.now() + "--" + file.originalname);
+        cb(null, Date.now()  + file.originalname);
     },
 });
 
 
 const upload = multer({storage : fileStorageEngine});
 // DEFINING THE ROUTE TO UPLOAD THE FILES IN THE LOCAL COMPUTER AND THEN SERVING THEM 
-app.post("/upload", upload.single("image"), (req, res) => {
+app.post("/upload", upload.single("image"), async (req, res) => {
     console.log("The information about the files is as follows\n");
+    // console.log(req.cookies);
+    const token = req.cookies.token;
+    let curr_user = jwt.verify(token, process.env.SECRET_KEY);
+    curr_user = await userModel.findOne({_id : curr_user._id});
+    console.log("The current user is ", curr_user);
+    const user_id = curr_user._id;
+    const file_path = req.file.path;
+    const newIdea = ideaModel({
+        user_id : user_id,
+        ideaname : req.body.idea,
+        category : req.body.category,
+        othersknow : req.body.otherknow,
+        rating : req.body.rating,
+        description : req.body.description,
+        thumbnail : file_path
+    });
+    await newIdea.save();
+
     console.log(req.file);
     console.log("The body that i got from the frontend client side is as follows\n");
     console.log(req.body);
     console.log("The user has uploaded something on the server\n");
+    res.json({status : 200, message : "ok"});
 
 })
 

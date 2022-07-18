@@ -2,7 +2,7 @@
 const mongoose = require('mongoose');
 
 
-// DEFINING THE NEW USER SCHEMA 
+// DEFINING  THE NEW USER SCHEMA 
 const ideaSchema = mongoose.Schema({
     user_id : {
         type : String , 
@@ -28,5 +28,14 @@ const ideaSchema = mongoose.Schema({
         type : String, 
         required : true,
     },
+    thumbnail : {
+        type : String
+    },
+
     
-})
+});
+
+
+const ideaModel = mongoose.model("idea", ideaSchema);
+
+module.exports = ideaModel;
