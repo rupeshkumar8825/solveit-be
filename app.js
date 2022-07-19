@@ -22,7 +22,7 @@ const port = 8000;
 app.use(cors({
     origin: 'http://localhost:3000',
     credentials: true
-  }));
+}));
 
 
 
@@ -36,14 +36,32 @@ app.use(cookieParser());
 app.get("/", async (req, res)=>{
     // console.log("The cookie that i get from the user is as follows \n");
     try{
-
+        
         // const cookie = req.cookies;
+        console.log("got the get request in the home page\n");
         console.log(req.cookies)
         const token = req.cookies.token;
         // console.log(token);
         // console.log("The current user is as follows");
         let curr_user = jwt.verify(token, process.env.SECRET_KEY);
         curr_user = await userModel.findOne({_id : curr_user._id});
+        
+        // HERE WE HAVE TO FIND THE TOTAL LIST OF AVAILABLE IDEAS IN THE FEED 
+        // const ideas = await ideaModel.find();
+        // console.log(ideas);
+        // const len = ideas.length();
+        // console.log("The total number of ideas are as follows ", len);
+        // const photo = await Photo.findOne({
+        //     photoID: req.params.photo_id,
+        // });
+        // if (!photo) {
+        //     return res.status(404).json({ msg: 'Photo not found' });
+        // }
+        // const filename = photo.photoFileName;
+        // const downloadPath = path.join(__dirname, './uploads', `${filename}`);
+        // res.download(downloadPath);
+
+        
         // console.log(curr_user);
         res.status(200).json({status : 200, message : "ok", curr_user});
     }catch(error){
@@ -59,12 +77,29 @@ app.get("/", async (req, res)=>{
 })
 
 
+app.get("/ideas", (req, res) =>{
+    console.log("Got the request to get the list of all ideas from the db\n");
+    res.send("done");
+})
 
 
-// ADDING THE ROUTE TO HANDLE THE IDEA UPLOAD SECTION 
-app.get("/upload", auth, async(req, res)=>{
-    // console.log("The user is trying to go to the upload section\n");
-    // console.log("The cookie that i get from the user is as follows \n");
+// app.get('/download/:photo_id', async (req, res) => {
+//     try {
+//     } catch (err) {
+//     }
+//     console.error(err.message);
+//     if (err.kind === 'ObjectId') {
+//       return res.status(404).json({ msg: 'Photo not found' });
+//     }
+//     res.status(500).send('Server error');
+  
+//   });
+  
+  
+  // ADDING THE ROUTE TO HANDLE THE IDEA UPLOAD SECTION 
+  app.get("/upload", auth, async(req, res)=>{
+      // console.log("The user is trying to go to the upload section\n");
+      // console.log("The cookie that i get from the user is as follows \n");
     const token = req.cookies.token;
     // console.log(token);
     let curr_user = jwt.verify(token, process.env.SECRET_KEY);
