@@ -4,6 +4,7 @@ const express = require('express');
 // ADDING THE CORS MIDDLE WARE TO ALLOW THE PROXY WEB API HITS FROM THE REACT FRONTEND 
 const cors = require('cors');
 const app = express();
+const path = require("path")
 const bodyParser = require('body-parser');
 const cookieParser = require("cookie-parser");
 const bcrypt = require("bcrypt");
@@ -35,6 +36,19 @@ app.use(cookieParser());
 
 app.get("/", async (req, res)=>{
     // console.log("The cookie that i get from the user is as follows \n");
+    // let ideas = await ideaModel.find();
+    // console.log("The list of ideas that are stored in the database are as follows \n");
+    // console.log(ideas);
+    let fileLocation = path.join(__dirname,"./uploads/1658174707661--basic_expectation.png");
+    console.log("The location of the file is as follows \n\n");
+    console.log(fileLocation);
+    // WE HAVE ALSO HAVE TO SEARCH THE USER DETAILS BASED ON THE IDEAS USER_ID SO THAT WE CAN SEND ALL THE DETAILS 
+    // WE HAVE TO MAKE A SEPARATE OBJECT WHICH WILL STORE ALL THERSE INFORMATIONS WITH THE USER INFORMATION AND THE IDEAS INFORMATIONS AS WELL FOR THIS PURPOSE 
+    // let users = await userModel.find();
+    // console.log("The list of users are as follows \n");
+    // console.log(users);
+
+    // SO WE WILL ALSO SEND  THIS INFO TO THE FRONTEND ALONG WITH THE OTHER DETAILS FOR THIS PURPOSE 
     try{
         
         // const cookie = req.cookies;
@@ -46,28 +60,16 @@ app.get("/", async (req, res)=>{
         let curr_user = jwt.verify(token, process.env.SECRET_KEY);
         curr_user = await userModel.findOne({_id : curr_user._id});
         
-        // HERE WE HAVE TO FIND THE TOTAL LIST OF AVAILABLE IDEAS IN THE FEED 
-        // const ideas = await ideaModel.find();
-        // console.log(ideas);
-        // const len = ideas.length();
-        // console.log("The total number of ideas are as follows ", len);
-        // const photo = await Photo.findOne({
-        //     photoID: req.params.photo_id,
-        // });
-        // if (!photo) {
-        //     return res.status(404).json({ msg: 'Photo not found' });
-        // }
-        // const filename = photo.photoFileName;
-        // const downloadPath = path.join(__dirname, './uploads', `${filename}`);
-        // res.download(downloadPath);
+        
 
         
         // console.log(curr_user);
-        res.status(200).json({status : 200, message : "ok", curr_user});
+        res.status(200).sendFile({status : 200, message : "ok", curr_user, fileLocation : fileLocation});
     }catch(error){
         console.log("got some error in error section")
-        res.json({status : 401, message : "so not ok"});
-        res.end();
+        res.sendFile(`${fileLocation}`);
+        // res.sendFile({status : 401, message : "so not ok", fileLocation : fileLocation});
+        // res.end();
         return;
     }
     console.log("Came here as well");
@@ -77,57 +79,38 @@ app.get("/", async (req, res)=>{
 })
 
 
-app.get("/ideas", (req, res) =>{
-    console.log("Got the request to get the list of all ideas from the db\n");
-    res.send("done");
-})
-
-
-// app.get('/download/:photo_id', async (req, res) => {
-//     try {
-//     } catch (err) {
-//     }
-//     console.error(err.message);
-//     if (err.kind === 'ObjectId') {
-//       return res.status(404).json({ msg: 'Photo not found' });
-//     }
-//     res.status(500).send('Server error');
-  
-//   });
   
   
-  // ADDING THE ROUTE TO HANDLE THE IDEA UPLOAD SECTION 
-  app.get("/upload", auth, async(req, res)=>{
-      // console.log("The user is trying to go to the upload section\n");
-      // console.log("The cookie that i get from the user is as follows \n");
+// ADDING THE ROUTE TO HANDLE THE IDEA UPLOAD SECTION 
+app.get("/upload", auth, async(req, res)=>{
     const token = req.cookies.token;
-    // console.log(token);
+
+
     let curr_user = jwt.verify(token, process.env.SECRET_KEY);
-    // console.log("The current user is as follows");
     curr_user = await userModel.findOne({_id : curr_user._id});
-    // console.log(curr_user);
+
+
     res.status(200).json({status : 200, message : "ok", curr_user});
-    // res.status(200).json({status: 200, message:"ok"});
 })
+
+
 
 
 
 
 // HANDLING THE REGISTER ROUTE FOR THIS PURPOSE 
 app.post("/signin", async (req, res) =>{
-    // console.log("Got the signin post request to this nodejs backend for solveit application\n");
-    // console.log('The request and the credentials that i got is as follows\n\n');
-    // console.log(req.body);
-
+    
     let user = await userModel.findOne({email : req.body.email});
 
     if(!user)
     {
         res.json({status : 401 , message : "not ok"})
     }
-    // console.log("The current user is as follows \n", user);
 
     const isMatch = await bcrypt.compare(req.body.password, user.password);
+
+
     // GENERATING THE TOKEN WHILE LOGGING IN 
     if(!isMatch)
     {
@@ -136,16 +119,15 @@ app.post("/signin", async (req, res) =>{
     
 
     const token = await user.generateAuthToken();
-    // console.log("The generated token after login is as follows\n");
-    // console.log(token);
-
+    
     
 
-    // res.cookie("token", token, { maxAge: 6000000, httpOnly : true, secure: true,  })
     res.cookie('token', token, {maxAge: 10*60*1000, sameSite: 'none', secure: true , httpOnly : true});
     
     res.json({status : 200 , success : "ok", curr_user:user});
 })
+
+
 
 
 
@@ -177,10 +159,12 @@ app.post("/register", async (req,res)=>{
     )
     
     const response = await newUser.save()
-    console.log(response);
+    // console.log(response);
     
     res.status(200).json({status : 200, message : "ok"});
 })
+
+
 
 
 
@@ -203,6 +187,8 @@ app.get("/logout", auth, async(req, res) =>{
 })
 
 
+
+
 // DEFINING THE MIDDLEWARE TO UPLOAD THE FILE IN THE LOCAL SERVER 
 const fileStorageEngine = multer.diskStorage({
     destination: (req, file, cb) =>{
@@ -214,10 +200,17 @@ const fileStorageEngine = multer.diskStorage({
 });
 
 
+
+
 const upload = multer({storage : fileStorageEngine});
+
+
+
+
+
 // DEFINING THE ROUTE TO UPLOAD THE FILES IN THE LOCAL COMPUTER AND THEN SERVING THEM 
 app.post("/upload", upload.single("image"), async (req, res) => {
-    console.log("The information about the files is as follows\n");
+    // console.log("The information about the files is as follows\n");
     // console.log(req.cookies);
     const token = req.cookies.token;
     let curr_user = jwt.verify(token, process.env.SECRET_KEY);
@@ -236,13 +229,17 @@ app.post("/upload", upload.single("image"), async (req, res) => {
     });
     await newIdea.save();
 
-    console.log(req.file);
-    console.log("The body that i got from the frontend client side is as follows\n");
-    console.log(req.body);
-    console.log("The user has uploaded something on the server\n");
+    // console.log(req.file);
+    // console.log("The body that i got from the frontend client side is as follows\n");
+    // console.log(req.body);
+    // console.log("The user has uploaded something on the server\n");
     res.json({status : 200, message : "ok"});
 
 })
+
+
+
+// app.get("/ideas", )
 
 // making a simple server here 
 app.listen(port, ()=>{
