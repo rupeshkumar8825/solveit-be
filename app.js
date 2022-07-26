@@ -39,11 +39,7 @@ app.get("/", async (req, res)=>{
     let ideas = await ideaModel.find();
     console.log("The list of ideas that are stored in the database are as follows \n");
     console.log(ideas);
-    // let fileLocation = path.join(__dirname,"./uploads/1658174707661--basic_expectation.png");
-    // console.log("The location of the file is as follows \n\n");
-    // console.log(fileLocation);
-    // WE HAVE ALSO HAVE TO SEARCH THE USER DETAILS BASED ON THE IDEAS USER_ID SO THAT WE CAN SEND ALL THE DETAILS 
-    // WE HAVE TO MAKE A SEPARATE OBJECT WHICH WILL STORE ALL THERSE INFORMATIONS WITH THE USER INFORMATION AND THE IDEAS INFORMATIONS AS WELL FOR THIS PURPOSE 
+   
     let users = await userModel.find();
     console.log("The list of users are as follows \n");
     console.log(users);
@@ -64,7 +60,7 @@ app.get("/", async (req, res)=>{
 
         
         // console.log(curr_user);
-        res.status(200).sendFile({status : 200, message : "ok", curr_user, fileLocation : fileLocation});
+        res.status(200).sendFile({status : 200, message : "ok", curr_user, ideas : ideas, users : users});
     }catch(error){
         console.log("got some error in error section")
         // res.sendFile(`${fileLocation}`);
