@@ -48,18 +48,18 @@ app.get("/", async (req, res)=>{
     try{
         
         // const cookie = req.cookies;
-        console.log("got the get request in the home page\n");
-        console.log(req.cookies)
+        // console.log("got the get request in the home page\n");
+        // console.log(req.cookies)
         const token = req.cookies.token;
-        console.log(token);
-        console.log("The current user is as follows");
+        // console.log(token);
+        // console.log("The current user is as follows");
         let curr_user = jwt.verify(token, process.env.SECRET_KEY);
         curr_user = await userModel.findOne({_id : curr_user._id});
         
         
 
         
-        console.log(curr_user);
+        // console.log(curr_user);
         res.status(200).json({status : 200, message : "ok", curr_user, ideas : ideas, users : users});
     }catch(error){
         console.log("got some error in error section")
@@ -68,7 +68,7 @@ app.get("/", async (req, res)=>{
         // res.end();
         return;
     }
-    console.log("Came here as well");
+    // console.log("Came here as well");
     
     // res.end();
     
@@ -214,7 +214,7 @@ app.post("/upload", upload.single("image"), async (req, res) => {
     const token = req.cookies.token;
     let curr_user = jwt.verify(token, process.env.SECRET_KEY);
     curr_user = await userModel.findOne({_id : curr_user._id});
-    console.log("The current user is ", curr_user);
+    // console.log("The current user is ", curr_user);
     const user_id = curr_user._id;
     const file_path = req.file.path;
     const newIdea = ideaModel({
@@ -271,15 +271,40 @@ app.post("/upvote", auth, async(req, res)=>{
                 }
             }
         });
-    console.log("the response after inserting the new ideaid in the upvotes section is ", user);
+    // console.log("the response after inserting the new ideaid in the upvotes section is ", user);
     let idea = await ideaModel.findOne({_id : ideaID});
     let currUpvotes = idea.upvotes;
 
     idea = await ideaModel.updateOne({_id : ideaID}, {$set : {upvotes : currUpvotes+1}});
-    console.log('The response after incrementing the count of upvotes is as follows\n', idea);
+    // console.log('The response after incrementing the count of upvotes is as follows\n', idea);
     
     res.status(200).json({status : "200", message : "ok"});
 })
+
+// DEFINING THE END POINT TO SEND THE LIST OF USERS AND THE CORRESPONDING UPVOTED IDEAS FOR THIS PURPOSE 
+app.get("/upvotedList", async (req, res)=>{
+    console.log("Got the requet to send the list of upvoted ideas by the particular user\n");
+    
+    const users = await userModel.find();
+    let usersUpvotedList = [];
+
+    // using the for loop for this purpose 
+    users.forEach(element => {
+        const data = {
+            userId : element._id,
+            upvotesList : element.upvotes
+        }
+
+        usersUpvotedList.push(data);
+    });
+
+    console.log("The list of upvoted ideas corresponding to the user is as follows\n\n");
+    console.log(usersUpvotedList);
+
+    // NOW WE HAVE TO SEND THE RESPONSE FOR THIS PURPOSE 
+    res.status(200).json({status : 200 , message : "ok", usersUpvotedList});
+})
+
 
 // app.get("/ideas", )
 
