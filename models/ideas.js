@@ -31,6 +31,14 @@ const ideaSchema = mongoose.Schema({
     thumbnail : {
         type : String
     },
+    upvotes : {
+        type : Number, 
+        required : true
+    },
+    shares : {
+        type : Number, 
+        required : true
+    }
 
     
 });

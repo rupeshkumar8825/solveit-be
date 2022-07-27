@@ -151,6 +151,9 @@ app.post("/register", async (req,res)=>{
             email : req.body.email, 
             phone : req.body.phone,
             password : hashed_pswd,
+            upvotes : [],
+            shared  : [],
+            saved : []
         }
     )
     
@@ -221,7 +224,9 @@ app.post("/upload", upload.single("image"), async (req, res) => {
         othersknow : req.body.otherknow,
         rating : req.body.rating,
         description : req.body.description,
-        thumbnail : file_path
+        thumbnail : file_path,
+        upvotes : 0,
+        shares : 0
     });
     await newIdea.save();
 

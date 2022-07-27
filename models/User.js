@@ -45,6 +45,21 @@ const userSchema = mongoose.Schema(
             // unique : true, 
             required : true
         },
+        upvotes : [{
+            ideasID : {
+                type : String, 
+            }
+        }],
+        saved : [{
+            ideasID : {
+                type : String
+            }
+        }],
+        shared : [{
+            ideasID : {
+                type : String
+            }
+        }],
         tokens : [{
             token : {
                 type : String, 
