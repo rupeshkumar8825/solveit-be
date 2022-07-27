@@ -255,6 +255,32 @@ app.get("/image", (req, res)=>{
 })
 
 
+
+// DEFINING THE ENDPOINT TO UPDATE THE NUMBER OF UPVOTES OF THE IDEA 
+app.post("/upvote", auth, async(req, res)=>{
+    console.log("Got the post request to upvote the idea and add this to the users upvoting list\n");
+    console.log(req.body);
+    const userID = req.body.userID;
+    const ideaID = req.body.ideaID;
+    
+    const user = await userModel.updateOne({_id : userID}, 
+        {
+            $push : {
+                upvotes : {
+                    ideasID : ideaID
+                }
+            }
+        });
+    console.log("the response after inserting the new ideaid in the upvotes section is ", user);
+    let idea = await ideaModel.findOne({_id : ideaID});
+    let currUpvotes = idea.upvotes;
+
+    idea = await ideaModel.updateOne({_id : ideaID}, {$set : {upvotes : currUpvotes+1}});
+    console.log('The response after incrementing the count of upvotes is as follows\n', idea);
+    
+    res.status(200).json({status : "200", message : "ok"});
+})
+
 // app.get("/ideas", )
 
 // making a simple server here 
