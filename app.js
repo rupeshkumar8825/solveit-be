@@ -286,25 +286,55 @@ app.get("/upvotedList", async (req, res)=>{
     console.log("Got the requet to send the list of upvoted ideas by the particular user\n");
     
     const users = await userModel.find();
-    let usersUpvotedList = [];
+    let usersUpvotedSavedList = [];
 
     // using the for loop for this purpose 
     users.forEach(element => {
         const data = {
             userId : element._id,
-            upvotesList : element.upvotes
+            upvotesList : element.upvotes,
+            savedList  : element.saved
         }
 
-        usersUpvotedList.push(data);
+        usersUpvotedSavedList.push(data);
     });
 
     console.log("The list of upvoted ideas corresponding to the user is as follows\n\n");
-    console.log(usersUpvotedList);
+    console.log(usersUpvotedSavedList);
 
     // NOW WE HAVE TO SEND THE RESPONSE FOR THIS PURPOSE 
-    res.status(200).json({status : 200 , message : "ok", usersUpvotedList});
+    res.status(200).json({status : 200 , message : "ok", usersUpvotedSavedList});
 })
 
+
+
+// ADDING THE ROUTE TO SAVE THE GIVEN IDEAID TO THE CORRESPONDING USERID IN THE DB 
+app.post("/save", auth, async (req, res)=>{
+    console.log("The user has saved something");
+    console.log("The details for saving is as follows\n");
+    console.log(req.body);
+
+    // const userID
+    const userID = req.body.userID;
+    const ideaID = req.body.ideaID;
+    const user = await userModel.updateOne({_id : userID}, 
+        {
+            $push : {
+                saved : {
+                    ideasID : ideaID
+                }
+            }
+        });
+    console.log(user);
+    // console.log("the response after inserting the new ideaid in the upvotes section is ", user);
+    // let idea = await ideaModel.findOne({_id : ideaID});
+    // let currUpvotes = idea.upvotes;
+
+    // idea = await ideaModel.updateOne({_id : ideaID}, {$set : {upvotes : currUpvotes+1}});
+
+    // SAY EVERYTHING WENT FINE 
+    res.status(200).json({status : 200 , message : "ok"});
+})
 
 // app.get("/ideas", )
 

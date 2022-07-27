@@ -38,7 +38,8 @@ const ideaSchema = mongoose.Schema({
     shares : {
         type : Number, 
         required : true
-    }
+    },
+    
 
     
 });
