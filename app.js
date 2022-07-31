@@ -55,6 +55,8 @@ app.get("/", async (req, res)=>{
         // console.log("The current user is as follows");
         let curr_user = jwt.verify(token, process.env.SECRET_KEY);
         curr_user = await userModel.findOne({_id : curr_user._id});
+        // console.log("The current is user is as follows\n\n");
+        // console.log(curr_user);
         
         
 
@@ -334,6 +336,69 @@ app.post("/save", auth, async (req, res)=>{
 
     // SAY EVERYTHING WENT FINE 
     res.status(200).json({status : 200 , message : "ok"});
+})
+
+
+// DEFINING THE ROUTE TO SEND THE USER DETAILS GIVEN ID 
+app.get("/user/:id", auth, async (req, res)=>{
+    console.log("The frontend has made a get request to backend to get the details of the user of current given id\n");
+    try {
+        let users = await userModel.find();
+        let ideas = await ideaModel.find();
+
+        console.log("The current id is \n", req.params);
+        let currID = req.params.id;
+    
+        let currUser = await userModel.findOne({_id : currID});
+        console.log("The current user details is ", currUser);
+    
+        // WE HAVE TO SEND THE IDEA INFORMATION SEPARATE FOR THIS PURPOSE 
+        let upvotedIdeaID = currUser.upvotes;
+        let savedIdeaID = currUser.saved;
+        console.log("The list of upvoted idea is", upvotedIdeaID);
+        console.log('The list of saved idea is ', savedIdeaID);
+    
+        let upvotedIdeaList = [];
+        let savedIdeaList = [];
+        // USING THE FOR LOOP FOR THIS PURPOSE TO STORE THE DETAILS OF THE IDEA OF THE UPVOTED BY THE CURRENT USER
+        for(let i  = 0;i<upvotedIdeaID.length;i++)
+        {
+            const currIdeaInfo = await ideaModel.findOne({_id : upvotedIdeaID[i].ideasID});
+            // console.log(currIdeaInfo);
+            upvotedIdeaList.push(currIdeaInfo);
+            // console.log("The upvotedidealist is", upvotedIdeaList);
+            
+        }
+        // upvotedIdeaID.forEach(element => {
+        //     // console.log(element.ideasID);
+        // });
+    
+    
+        // USING THE FOR LOOP FOR STORING THE DETAILS OF THE SAVED IDEA BY THE CURRENT USER 
+        // savedIdeaID.forEach(async element =>{
+        //     const currIdeaInfo = await ideaModel.findOne({_id : element.ideasID});
+        //     savedIdeaList.push(currIdeaInfo);
+        // })
+        for(let i  = 0;i<savedIdeaID.length;i++)
+        {
+            const currIdeaInfo = await ideaModel.findOne({_id : savedIdeaID[i].ideasID});
+            // console.log(currIdeaInfo);
+            savedIdeaList.push(currIdeaInfo);
+            // console.log("The upvotedidealist is", upvotedIdeaList);
+            
+        }
+    
+        // SAY EVERYTHING WENT FINE 
+        // console.log("The details of the upvoted idea is ", upvotedIdeaList);
+        // console.log("The details of the saved idea list ", savedIdeaList);
+    
+        res.status(200).json({status : 200, message : "ok", savedIdeaList : savedIdeaList, upvotedIdeaList : upvotedIdeaList, users, ideas, currUser});
+    } catch (error) {
+        console.log("Got some error in users info route");
+        console.log(error);
+        res.json({status : 401, message : "not ok"});
+
+    }
 })
 
 // app.get("/ideas", )
