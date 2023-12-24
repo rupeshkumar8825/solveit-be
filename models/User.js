@@ -60,17 +60,7 @@ const userSchema = mongoose.Schema(
                 type : String
             }
         }],
-        tokens : [{
-            token : {
-                type : String, 
-                required : true
-            }
-        }]
-        // lastname :{
-        //     type : String, 
-        //     unique : true, 
-        //     required : true
-        // }
+        
     }
 );
 
@@ -79,6 +69,7 @@ const userSchema = mongoose.Schema(
 userSchema.methods.generateAuthToken = async function(){
     // ADDING THE TRY AND CATCH FOR ERROR HANDLING 
     try{
+        console.log("came inside the generate auth token \n");
         // GENERATING THE TOKEN FOR THIS PURPOSE 
         const token = jwt.sign({_id : this._id.toString()}, process.env.SECRET_KEY, {
             expiresIn: 6000,
@@ -86,9 +77,10 @@ userSchema.methods.generateAuthToken = async function(){
         });
         this.tokens = await this.tokens.concat({token : token});
         // SAVING THIS CHANGE TO THE DATABASE 
-        await this.save();
+        // await this.save();
         // console.log(token);
-        return token
+        console.log("exiting from the generate aut token function for this purpose \n");
+        return token;
     }
     catch(error){
         // res.send("the error part " + error);

@@ -47,25 +47,13 @@ app.get("/", async (req, res)=>{
     // SO WE WILL ALSO SEND  THIS INFO TO THE FRONTEND ALONG WITH THE OTHER DETAILS FOR THIS PURPOSE 
     try{
         
-        // const cookie = req.cookies;
-        // console.log("got the get request in the home page\n");
-        // console.log(req.cookies)
         const token = req.cookies.token;
-        // console.log(token);
-        // console.log("The current user is as follows");
         let curr_user = jwt.verify(token, process.env.SECRET_KEY);
         curr_user = await userModel.findOne({_id : curr_user._id});
-        // console.log("The current is user is as follows\n\n");
-        // console.log(curr_user);
-        
-        
 
-        
-        // console.log(curr_user);
+
         res.status(200).json({status : 200, message : "ok", curr_user, ideas : ideas, users : users});
     }catch(error){
-        console.log("got some error in error section")
-        // res.sendFile(`${fileLocation}`);
         res.json({status : 401, message : "so not ok", ideas : ideas, users: users});
         // res.end();
         return;
@@ -96,7 +84,7 @@ app.get("/upload", auth, async(req, res)=>{
 
 // HANDLING THE REGISTER ROUTE FOR THIS PURPOSE 
 app.post("/signin", async (req, res) =>{
-    
+    console.log("came inside the signing option \n", req.body);
     let user = await userModel.findOne({email : req.body.email});
 
     if(!user)
@@ -112,15 +100,16 @@ app.post("/signin", async (req, res) =>{
     {
         res.json({status : 401 , message : "not ok"})
     }
-    
+    console.log("the password matched with the current user for this purpose \n");
 
     const token = await user.generateAuthToken();
     
-    
+    console.log("we have got the token. The token is as follows \n", token);
 
     res.cookie('token', token, {maxAge: 10*60*1000, sameSite: 'none', secure: true , httpOnly : true});
     
-    res.json({status : 200 , success : "ok", curr_user:user});
+    
+    res.json({status : 200 , success : "ok", curr_user:user, token : token});
 })
 
 
@@ -129,9 +118,6 @@ app.post("/signin", async (req, res) =>{
 
 // DEFINING THE ROUTE TO REGISTER THE NEW USER 
 app.post("/register", async (req,res)=>{
-    // console.log("New user is trying to register on the solve it website\n");
-    // console.log(req.body);
-
     // FIRST WE HAVE TO CHECK WHETHER THE USER WITH THIS EMAIL ALREADY EXISTS OR NOT 
     const user = await userModel.findOne({email : req.body.email});
 
@@ -158,8 +144,6 @@ app.post("/register", async (req,res)=>{
     )
     
     const response = await newUser.save()
-    // console.log(response);
-    
     res.status(200).json({status : 200, message : "ok"});
 })
 
