@@ -70,9 +70,7 @@ app.get("/", async (req, res)=>{
         // res.end();
         return;
     }
-    // console.log("Came here as well");
-    
-    // res.end();
+   
     
 })
 
@@ -340,7 +338,7 @@ app.post("/save", auth, async (req, res)=>{
 
 
 // DEFINING THE ROUTE TO SEND THE USER DETAILS GIVEN ID 
-app.get("/user/:id", auth, async (req, res)=>{
+app.get("/user/:id",  async (req, res)=>{
     console.log("The frontend has made a get request to backend to get the details of the user of current given id\n");
     try {
         let users = await userModel.find();
